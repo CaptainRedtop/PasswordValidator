@@ -9,6 +9,7 @@ namespace PasswordValidator
     {
         static void Main(string[] args)
         {
+            Console.Title = "Password Validator";
             StartController();
         }
 
@@ -20,7 +21,7 @@ namespace PasswordValidator
             const int DOWNGRAD = 2;
             while (true)
             {
-                string reason = null;
+                string reason = "";
                 string reason1 = "Password not between 12 and 64 characters\n";
                 string reason2 = "Password does not contain both uppercase and lowercase\n";
                 string reason3 = "Password does not contain a number\n";
@@ -28,6 +29,8 @@ namespace PasswordValidator
                 StartGUI();
                 string password = Console.ReadLine();
                 password.Trim();
+
+                //Adding all fault together for an error list to the user
                 if (CheckLength(password) == false)
                 {
                     reason += reason1;
@@ -45,15 +48,24 @@ namespace PasswordValidator
                     reason += reason4;
                 }
 
+                //Writing the resualt to user
                 if (reason == null)
                 {
-                    GUI(SUCCESS);
+                    if (CheckToDowngrade(password) == true)
+                    {
+                        GUI(DOWNGRAD);
+                    }
+                    else
+                    {
+                        GUI(SUCCESS);
+                    }
                 }
                 else
                 {
                     GUI(FAIL, reason);
                 }
 
+                //User can try again or exit the app
                 var key = Console.ReadKey();
                 if (key.Key != ConsoleKey.Enter)
                 {
@@ -74,7 +86,7 @@ namespace PasswordValidator
             if (input == 0)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Fail!");
+                Console.WriteLine("\nFail!");
                 Console.ResetColor();
                 Console.WriteLine(reason);
 
@@ -82,15 +94,28 @@ namespace PasswordValidator
             }
 
         }
-        static void GUI(int output)
+        static void GUI(int input)
         {
-            Console.ForegroundColor = ConsoleColor.DarkGreen;
-            Console.WriteLine("Success!");
-            Console.ResetColor();
+            if (input == 1)
+            {
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.WriteLine("\nSuccess!");
+                Console.ResetColor();
+                Console.WriteLine("\nPress enter to try again or any other key to exit");
+            }
+            else if (input == 2)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("\nYour password is OK, but is weak");
+                Console.ResetColor();
+                Console.WriteLine("\nPress enter to try again or any other key to exit");
+            }
+
         }
         static void StartGUI()
         {
-            Console.WriteLine("Check if a password to check if it is a valid strong password");
+            //Start screen for user
+            Console.WriteLine("Check if a password is a valid strong password!\n");
             Console.WriteLine("The rules are as following:");
             Console.WriteLine("The password must be between 12 - 64 characters.");
             Console.WriteLine("The password must include a mix of Upper and Lower case.");
@@ -104,6 +129,7 @@ namespace PasswordValidator
         #endregion GUI
 
         #region Model
+        
         static bool CheckLength(string password)
         {
             if (password.Length > 11 && password.Length < 65)
@@ -125,7 +151,7 @@ namespace PasswordValidator
             {
                 return false;
             }
-            
+
         }
         static bool CheckNumber(string password)
         {
@@ -134,6 +160,22 @@ namespace PasswordValidator
         static bool CheckSpecial(String password)
         {
             return password.Any(ch => ! char.IsLetterOrDigit(ch));
+        }
+
+        //Checking if a passed password needs to be downgraded
+        static bool CheckToDowngrade(string password)
+        {
+            //Checking for patterns
+            for (int i = 0; i < password.Length-3; i++)
+            {
+                if (password[i] == password[i + 1] && password[i + 1] == password[i + 2] && password[i + 2] == password[i + 3] ||
+                    password[i] == password[i + 1] - 1 && password[i + 1] == password[i + 2] - 1 && password[i + 2] == password[i + 3] - 1 ||
+                    password[i] == password[i + 1] + 1 && password[i + 1] == password[i + 2] + 1 && password[i + 2] == password[i + 3] + 1)
+                {
+                    return true;
+                }
+            }            
+            return false;
         }
 
         #endregion Model
